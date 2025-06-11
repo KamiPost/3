@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Telegram WebApp</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    .btn-animated {
+      background: linear-gradient(135deg, #4f46e5, #3b82f6);
+      color: white;
+      font-weight: 700;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 8px 15px rgba(59, 130, 246, 0.4);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+      user-select: none;
+      font-size: 1.125rem;
+      margin: 0.5rem 0;
+      min-width: 120px;
+    }
+
+    .btn-animated:hover {
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.8);
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    .btn-animated:active {
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+      transform: translateY(2px) scale(0.98);
+    }
+
+    .btn-simple {
+      background: white;
+      border: 1.5px solid black;
+      color: black;
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-simple:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.03);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      color: white;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .overlay h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .form-section {
+      background: #2d2d2d;
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      margin-bottom: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .form-section label {
+      font-size: 1rem;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+      display: block;
+      color: #f3f4f6;
+    }
+
+    .form-section input[type="text"],
+    .form-section input[type="number"] {
+      width: 100%;
+      background: #444;
+      color: white;
+      padding: 0.6rem 1rem;
+      border: 1px solid #666;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    #closeOverlayBtn,
+    #closeSendOverlay,
+    #closeDeliverOverlay {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 0 8px 15px rgba(79, 70, 229, 0.6);
+      transition: background-color 0.3s ease;
+      align-self: center;
+      margin-bottom: 1.5rem;
+    }
+
+    #closeOverlayBtn:hover,
+    #closeSendOverlay:hover,
+    #closeDeliverOverlay:hover {
+      background-color: #4338ca;
+    }
+  </style>
+</head>
+<body class="bg-white text-black">
+
+<main class="flex flex-col items-center justify-center min-h-screen space-y-6 pt-6 px-4">
+  <button id="viewRequestsBtn" class="btn-simple w-full max-w-xs">Все запросы</button>
+  <button id="securePaymentBtn" class="btn-simple w-full max-w-xs flex items-center justify-center space-x-2">
+    <i data-feather="shield"></i>
+    <span>Безопасная оплата</span>
+  </button>
+  <div class="flex flex-col w-full max-w-xs space-y-2">
+    <button id="sendBtn" class="btn-animated w-full">Отправить</button>
+    <button id="deliverBtn" class="btn-animated w-full">Доставить</button>
+  </div>
+</main>
+
+<div id="sendOverlay" class="overlay">
+  <button id="closeSendOverlay">Закрыть</button>
+  <h2>Информация о заказе</h2>
+  <div class="form-section">
+    <label for="fromOrder">Откуда?</label>
+    <input type="text" id="fromOrder" placeholder="Введите место отправления" />
+    <label for="toOrder">Куда?</label>
+    <input type="text" id="toOrder" placeholder="Введите место назначения" />
+    <label for="descriptionOrder">Описание</label>
+    <input type="text" id="descriptionOrder" placeholder="Краткое описание" />
+    <label for="weightOrder">Вес посылки</label>
+    <input type="text" id="weightOrder" placeholder="Например: 2 кг" />
+    <label for="dateOrder">Отправить (Дата)</label>
+    <input type="text" id="dateOrder" placeholder="Дата отправки" />
+  </div>
+  <h2>Вознагрождение</h2>
+  <div class="form-section">
+    <label for="costOrder">Стоимость</label>
+    <input type="number" id="costOrder" placeholder="Введите сумму" min="0" />
+  </div>
+</div>
+
+<div id="deliverOverlay" class="overlay">
+  <button id="closeDeliverOverlay">Закрыть</button>
+  <h2>Информация о доставке</h2>
+  <div class="form-section">
+    <label for="fromDeliver">Откуда?</label>
+    <input type="text" id="fromDeliver" placeholder="Введите место отправления" />
+    <label for="toDeliver">Куда?</label>
+    <input type="text" id="toDeliver" placeholder="Введите место назначения" />
+  </div>
+</div>
+
+<script>
+  feather.replace();
+
+  document.getElementById('sendBtn').addEventListener('click', () => {
+    setTimeout(() => {
+      document.getElementById('sendOverlay').style.display = 'flex';
+    }, 150); // невелика затримка
+  });
+
+  document.getElementById('closeSendOverlay').addEventListener('click', () => {
+    document.getElementById('sendOverlay').style.display = 'none';
+  });
+
+  document.getElementById('deliverBtn').addEventListener('click', () => {
+    setTimeout(() => {
+      document.getElementById('deliverOverlay').style.display = 'flex';
+    }, 150);
+  });
+
+  document.getElementById('closeDeliverOverlay').addEventListener('click', () => {
+    document.getElementById('deliverOverlay').style.display = 'none';
+  });
+</script>
+
+</body>
+</html>
